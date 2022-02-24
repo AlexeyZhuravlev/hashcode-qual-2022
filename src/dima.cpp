@@ -32,14 +32,14 @@ struct MySolver : public Context {
     void Solve() {
         // Solution goes here
         vi first {1, 0};
-        Assignment ass0 = {"WebServer", first};
+        Assignment ass0 = {1, first};
         Solution.pb(ass0);
         vi second = {0}; 
-        Assignment ass1 = {"Logging", second};
+        Assignment ass1 = {0, second};
         Solution.pb(ass1);
 
         vi third = {2, 1};
-        Assignment ass2 = {"WebChat", third};
+        Assignment ass2 = {2, third};
         Solution.pb(ass2);
     }
 };
