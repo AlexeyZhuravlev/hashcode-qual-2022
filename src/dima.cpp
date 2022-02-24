@@ -60,9 +60,9 @@ struct MySolver : public Context {
                     int needed = p.roles[r].level;
                     if (his_skill >= needed || (potential_mentor[p.roles[r].skill] >= needed && his_skill == needed - 1)) {
                         int score = free_since[c];
-                        // if (his_skill <= needed) {
-                        //     score *= 1; 
-                        // }
+                        if (his_skill <= needed) {
+                            score -= 100; 
+                        }
                         pii here = {score, c};
                         cand = min(cand, here);
                     }
