@@ -154,7 +154,7 @@ struct MySolver : public Context {
                 continue;
             }
             // assert((int)chosen.size() == p.roles_num);
-            if (start_date + p.days_to_complete <= p.best_before + p.score) {
+            if (start_date + p.days_to_complete <= p.best_before + p.score && chosen.size() > 0) {
                 forn(i, p.roles_num) {
                     int person = chosen[i];
                     free_since[person] = start_date + p.days_to_complete;
