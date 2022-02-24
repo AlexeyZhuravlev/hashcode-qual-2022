@@ -16,9 +16,97 @@
 
 using namespace std;
 
+#define mp make_pair
+#define pb push_back
+#define fi first
+#define se second
+#define li long long
+#define pii pair<int, int>
+#define vi vector<int>
+
+#define forn(i, n) for (int i = 0; i < (int)n; i++)
+#define fore(i, b, e) for (int i = (int)b; i <= (int)e; i++)
+#define all(x) (x).begin(), (x).end()
+
+struct ProjectComp {
+    float Potential(const Project& project) const {
+        return float(project.days_to_complete) - 0.1 * project.score;
+    }
+
+    bool operator()(const Project& first, const Project& second) const {
+        return Potential(first) < Potential(second);
+    }
+};
+
 struct MySolver : public Context {
     void Solve() {
         // Solution goes here
+        // vi first {1, 0};
+        // Assignment ass0 = {1, first};
+        // Solution.pb(ass0);
+        // vi second = {0}; 
+        // Assignment ass1 = {0, second};
+        // Solution.pb(ass1);
+
+        // vi third = {2, 1};
+        // Assignment ass2 = {2, third};
+        // Solution.pb(ass2);
+
+        vector<vi> contrib_to_skill(contributors_num, vi(skill_name_to_id.size()));
+        forn(c, contributors_num) {
+            for (auto s: contributors[c].skills) {
+                contrib_to_skill[c][s.skill] = s.level;
+            }
+        }
+        cerr << "built contrib to skill" << endl;
+
+
+        vector<Project> order = projects;
+        sort(order.begin(), order.end(), ProjectComp());
+        vector<int> free_since(contributors_num);
+        for (auto& p: order) {
+            vi chosen(p.roles_num, -1);
+            int start_date = 0;
+            set<int> used;
+            forn(r, p.roles_num) {
+                int best = -1;
+                forn(c, contributors_num) {
+                    if (used.count(c)) {
+                        continue;
+                    }
+                    if (contrib_to_skill[c][p.roles[r].skill] >= p.roles[r].level) {
+                        if (best == -1 || free_since[c] < free_since[best]) {
+                            best = c;
+                        }
+                    }
+                }
+                if (best == -1) {
+                    break;
+                }
+                used.insert(best);
+                chosen[r] = best;
+                start_date = max(start_date, free_since[best]);
+            }
+            bool all_covered = true;
+            forn(j, p.roles_num) {
+                if (chosen[j] == -1) {
+                    all_covered = false;
+                    break;
+                }
+            }
+            if (!all_covered) {
+                continue;
+            }
+            // assert((int)chosen.size() == p.roles_num);
+            if (start_date + p.days_to_complete <= p.best_before + p.score) {
+                forn(i, p.roles_num) {
+                    free_since[chosen[i]] = start_date + p.days_to_complete;
+
+                    // contrib_to_skill[chosen[i]][i]++;
+                }
+                Solution.pb({p.id, chosen});
+            }
+        } 
     }
 };
 
