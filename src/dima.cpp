@@ -31,16 +31,59 @@ using namespace std;
 struct MySolver : public Context {
     void Solve() {
         // Solution goes here
-        vi first {1, 0};
-        Assignment ass0 = {1, first};
-        Solution.pb(ass0);
-        vi second = {0}; 
-        Assignment ass1 = {0, second};
-        Solution.pb(ass1);
+        // vi first {1, 0};
+        // Assignment ass0 = {1, first};
+        // Solution.pb(ass0);
+        // vi second = {0}; 
+        // Assignment ass1 = {0, second};
+        // Solution.pb(ass1);
 
-        vi third = {2, 1};
-        Assignment ass2 = {2, third};
-        Solution.pb(ass2);
+        // vi third = {2, 1};
+        // Assignment ass2 = {2, third};
+        // Solution.pb(ass2);
+
+        vector<vi> contrib_to_skill(contributors_num, vi(skill_name_to_id.size()));
+        forn(c, contributors_num) {
+            for (auto s: contributors[c].skills) {
+                contrib_to_skill[c][s.skill] = s.level;
+            }
+        }
+        cerr << "built contrib to skill" << endl;
+
+
+        vector<Project> order = projects;
+        sort(all(order));
+        vector<int> free_since(contributors_num);
+        for (auto& p: order) {
+            vi chosen(p.roles_num, -1);
+            int start_date = 0;
+            for (int c = 0; c < contributors_num; ++c) {
+                forn(r, p.roles_num) {
+                    if (chosen[r] == -1 && contrib_to_skill[c][p.roles[r].skill] >= p.roles[r].level) {
+                        chosen[r] = c;
+                        start_date = max(start_date, free_since[c]);
+                        break;
+                    }
+                }
+            }
+            bool all_covered = true;
+            forn(j, p.roles_num) {
+                if (chosen[j] == -1) {
+                    all_covered = false;
+                    break;
+                }
+            }
+            if (!all_covered) {
+                continue;
+            }
+            // assert((int)chosen.size() == p.roles_num);
+            if (start_date + p.days_to_complete <= p.best_before + p.score) {
+                for (int person: chosen) {
+                    free_since[person] = start_date + p.days_to_complete;
+                }
+                Solution.pb({p.id, chosen});
+            }
+        } 
     }
 };
 

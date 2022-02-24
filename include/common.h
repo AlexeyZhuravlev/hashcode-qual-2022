@@ -34,9 +34,14 @@ struct Contributor {
 
 struct Project {
     string name;
+    int id;
     int days_to_complete, score, best_before, roles_num;
     vector<Role> roles;
 };
+
+bool operator < (const Project& first, const Project& second) {
+    return first.days_to_complete < second.days_to_complete;
+}
 
 struct Assignment {
     int project_id;
@@ -85,6 +90,7 @@ struct Context {
         for (int i = 0; i < projects_num; ++i) {
             Project& p = projects[i];
             cin >> p.name >> p.days_to_complete >> p.score >> p.best_before >> p.roles_num;
+            p.id = i;
             // cerr << p.days_to_complete << " " << p.score << " " << p.best_before << " " << p.roles_num << endl;
             p.roles.resize(p.roles_num);
             for (int j = 0; j < p.roles_num; ++j) {
