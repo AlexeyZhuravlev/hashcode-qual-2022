@@ -29,6 +29,8 @@ using namespace std;
 #define all(x) (x).begin(), (x).end()
 
 struct MySolver : public Context {
+    const int INF = 2e9;
+
     void Solve() {
         vector<vi> contrib_to_skill(contributors_num, vi(skill_name_to_id.size()));
         forn(c, contributors_num) {
@@ -49,7 +51,7 @@ struct MySolver : public Context {
 
             vi potential_mentor(skill_name_to_id.size(), -1);
             forn(r, p.roles_num) {
-                int best = -1;
+                pii cand = {INF, INF};
                 forn(c, contributors_num) {
                     if (used.count(c)) {
                         continue;
@@ -57,14 +59,18 @@ struct MySolver : public Context {
                     int his_skill = contrib_to_skill[c][p.roles[r].skill];
                     int needed = p.roles[r].level;
                     if (his_skill >= needed || (potential_mentor[p.roles[r].skill] >= needed && his_skill == needed - 1)) {
-                        if (best == -1 || free_since[c] < free_since[best]) {
-                            best = c;
-                        }
+                        int score = free_since[c];
+                        // if (his_skill <= needed) {
+                        //     score *= 1; 
+                        // }
+                        pii here = {score, c};
+                        cand = min(cand, here);
                     }
                 }
-                if (best == -1) {
+                if (cand.fi == INF) {
                     break;
                 }
+                int best = cand.se;
                 used.insert(best);
                 chosen[r] = best;
                 start_date = max(start_date, free_since[best]);
