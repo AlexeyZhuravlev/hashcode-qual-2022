@@ -117,40 +117,30 @@ struct Context {
 
     uint64_t GetScore() {
         uint64_t score = 0;
-        int pointer = 0;
         vector<int> free_since(contributors_num);
         // cerr << "Important: order of assignments should be correct!" << endl;
-        for (int day = 0; day < END_OF_TIME; ++day) {
-            while (pointer < (int)Solution.size()) {
-                Assignment& ass = Solution[pointer];
-                Project& p = projects[ass.project_id];
+        for (int pointer = 0; pointer < (int)Solution.size(); ++pointer) {
+            Assignment& ass = Solution[pointer];
+            Project& p = projects[ass.project_id];
 
-                bool can_start = true;
-                for (int person: ass.chosen) {
-                    if (free_since[person] > day) {
-                        can_start = false;
-                        break;
-                    }
-                }
-                if (can_start) {
-                    int t = day + p.days_to_complete;
-                    // cerr << "project " << ass.project_id << " done on day " << t << endl;
-                    if (t <= p.best_before) {
-                        score += p.score;
-                    } else if (t <= p.best_before + p.score) {
-                        score += p.score - (t - p.best_before);
-                    }
-
-                    for (int person: ass.chosen) {
-                        free_since[person] = t;
-                    }
-
-                    ++pointer;
-                } else {
-                    break;
-                }
+            int start_time = 0;
+            for (int c: ass.chosen) {
+                start_time = max(start_time, free_since[c]);
             }
-            if (pointer == (int)Solution.size()) {
+
+            if (start_time + p.days_to_complete <= p.best_before + p.score) {
+                int t = start_time + p.days_to_complete;
+                // cerr << "project " << ass.project_id << " done on day " << t << endl;
+                if (t <= p.best_before) {
+                    score += p.score;
+                } else if (t <= p.best_before + p.score) {
+                    score += p.score - (t - p.best_before);
+                }
+
+                for (int person: ass.chosen) {
+                    free_since[person] = t;
+                }
+            } else {
                 break;
             }
         }
