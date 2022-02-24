@@ -39,9 +39,14 @@ struct Project {
     vector<Role> roles;
 };
 
+static float dc = 1.0;
+static float sw = 0.03;
+static float rw = 0.01;
+static float bw = 0.01;
+
 struct ProjectComp {
     float Potential(const Project& project) const {
-        return float(project.days_to_complete) - 0.04 * project.score + 0.0 * project.roles_num + 0.01 * project.best_before;
+        return dc * float(project.days_to_complete) - sw * project.score + rw * project.roles_num + bw * project.best_before;
     }
 
     bool operator()(const Project& first, const Project& second) const {
