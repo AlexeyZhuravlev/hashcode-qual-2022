@@ -52,11 +52,69 @@ struct MySolver : public Context {
 
 
         vector<Project> order = projects;
-        sort(all(order), ProjectComp());
+        //sort(all(order), ProjectComp());
         vector<int> free_since(contributors_num);
-        for (auto& p: order) {
-            vi chosen(p.roles_num, -1);
+        vector<char> usedProject(projects_num, 0);
+        for (int z = 0; z < order.size(); ++z) {
+            int best_score = 0;
+            int best_project = -1;
             int start_date = 0;
+            for (int i = 0; i < order.size(); ++i) {
+                const Project& p = order[i];
+                if (usedProject[p.id]) {
+                    continue;
+                }
+                vi chosen(p.roles_num, -1);
+                set<int> used;
+
+                vi potential_mentor(skill_name_to_id.size(), -1);
+                forn(r, p.roles_num) {
+                    int best = -1;
+                    forn(c, contributors_num) {
+                        if (used.count(c)) {
+                            continue;
+                        }
+                        int his_skill = contrib_to_skill[c][p.roles[r].skill];
+                        int needed = p.roles[r].level;
+                        if (his_skill >= needed || (potential_mentor[p.roles[r].skill] >= needed && his_skill == needed - 1)) {
+                            if (best == -1 || free_since[c] < free_since[best]) {
+                                best = c;
+                            }
+                        }
+                    }
+                    if (best == -1) {
+                        break;
+                    }
+                    used.insert(best);
+                    chosen[r] = best;
+                    start_date = max(start_date, free_since[best]);
+
+                    forn(skill, skill_name_to_id.size()) {
+                        potential_mentor[skill] = max(potential_mentor[skill], contrib_to_skill[best][skill]);
+                    }
+                }
+                bool all_covered = true;
+                forn(j, p.roles_num) {
+                    if (chosen[j] == -1) {
+                        all_covered = false;
+                        break;
+                    }
+                }
+                if (!all_covered) {
+                    continue;
+                }
+                if (start_date + p.days_to_complete <= p.best_before + p.score) {
+                    int t = start_date + p.days_to_complete;
+                    int potential_score = p.score - (t - p.best_before);
+                    if (potential_score > best_score) {
+                        best_score = potential_score;
+                        best_project = i;
+                    }
+                }
+            }
+            const Project& p = order[best_project];
+            vi chosen(p.roles_num, -1);
+            start_date = 0;
             set<int> used;
 
             vi potential_mentor(skill_name_to_id.size(), -1);
@@ -102,13 +160,14 @@ struct MySolver : public Context {
                     free_since[person] = start_date + p.days_to_complete;
 
                     if (contrib_to_skill[person][p.roles[i].skill] <= p.roles[i].level) {
-                       contrib_to_skill[person][p.roles[i].skill]++;
+                        contrib_to_skill[person][p.roles[i].skill]++;
                     }
                     // contrib_to_skill[chosen[i]][i]++;
                 }
                 Solution.pb({p.id, chosen});
+                usedProject[p.id] = 1;
             }
-        } 
+        }
     }
 };
 
