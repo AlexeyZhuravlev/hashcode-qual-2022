@@ -41,6 +41,8 @@ struct Project {
 
 bool operator < (const Project& first, const Project& second) {
     return first.days_to_complete < second.days_to_complete;
+    // return first.score > second.score;
+    // return (double)first.score / first.days_to_complete > (double)second.score / second.days_to_complete;
 }
 
 struct Assignment {

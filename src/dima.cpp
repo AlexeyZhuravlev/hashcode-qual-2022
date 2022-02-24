@@ -57,14 +57,25 @@ struct MySolver : public Context {
         for (auto& p: order) {
             vi chosen(p.roles_num, -1);
             int start_date = 0;
-            for (int c = 0; c < contributors_num; ++c) {
-                forn(r, p.roles_num) {
-                    if (chosen[r] == -1 && contrib_to_skill[c][p.roles[r].skill] >= p.roles[r].level) {
-                        chosen[r] = c;
-                        start_date = max(start_date, free_since[c]);
-                        break;
+            set<int> used;
+            forn(r, p.roles_num) {
+                int best = -1;
+                forn(c, contributors_num) {
+                    if (used.count(c)) {
+                        continue;
+                    }
+                    if (contrib_to_skill[c][p.roles[r].skill] >= p.roles[r].level) {
+                        if (best == -1 || free_since[c] < free_since[best]) {
+                            best = c;
+                        }
                     }
                 }
+                if (best == -1) {
+                    break;
+                }
+                used.insert(best);
+                chosen[r] = best;
+                start_date = max(start_date, free_since[best]);
             }
             bool all_covered = true;
             forn(j, p.roles_num) {
@@ -78,8 +89,10 @@ struct MySolver : public Context {
             }
             // assert((int)chosen.size() == p.roles_num);
             if (start_date + p.days_to_complete <= p.best_before + p.score) {
-                for (int person: chosen) {
-                    free_since[person] = start_date + p.days_to_complete;
+                forn(i, p.roles_num) {
+                    free_since[chosen[i]] = start_date + p.days_to_complete;
+
+                    // contrib_to_skill[chosen[i]][i]++;
                 }
                 Solution.pb({p.id, chosen});
             }
