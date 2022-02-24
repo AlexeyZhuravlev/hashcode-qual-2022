@@ -27,6 +27,7 @@ struct Role {
 
 struct Contributor {
     string name;
+    int id;
     int skills_num;
     vector<Role> skills;
 };
@@ -71,6 +72,7 @@ struct Context {
         for (int i = 0; i < contributors_num; ++i) {
             Contributor& c = contributors[i];
             cin >> c.name >> c.skills_num;
+            c.id = i;
             c.skills.resize(c.skills_num);
             for (int j = 0; j < c.skills_num; ++j) {
                 string name;
