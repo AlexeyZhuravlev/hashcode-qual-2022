@@ -30,18 +30,6 @@ using namespace std;
 
 struct MySolver : public Context {
     void Solve() {
-        // Solution goes here
-        // vi first {1, 0};
-        // Assignment ass0 = {1, first};
-        // Solution.pb(ass0);
-        // vi second = {0}; 
-        // Assignment ass1 = {0, second};
-        // Solution.pb(ass1);
-
-        // vi third = {2, 1};
-        // Assignment ass2 = {2, third};
-        // Solution.pb(ass2);
-
         vector<vi> contrib_to_skill(contributors_num, vi(skill_name_to_id.size()));
         forn(c, contributors_num) {
             for (auto s: contributors[c].skills) {
