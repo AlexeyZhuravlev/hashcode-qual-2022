@@ -40,7 +40,7 @@ struct MySolver : public Context {
 
 
         vector<Project> order = projects;
-        sort(all(order));
+        sort(all(order), ProjectComp());
         vector<int> free_since(contributors_num);
         for (auto& p: order) {
             vi chosen(p.roles_num, -1);

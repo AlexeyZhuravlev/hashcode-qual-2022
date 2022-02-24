@@ -39,11 +39,15 @@ struct Project {
     vector<Role> roles;
 };
 
-bool operator < (const Project& first, const Project& second) {
-    return first.days_to_complete < second.days_to_complete;
-    // return first.score > second.score;
-    // return (double)first.score / first.days_to_complete > (double)second.score / second.days_to_complete;
-}
+struct ProjectComp {
+    float Potential(const Project& project) const {
+        return float(project.days_to_complete) - 0.01 * project.score;
+    }
+
+    bool operator()(const Project& first, const Project& second) const {
+        return Potential(first) < Potential(second);
+    }
+};
 
 struct Assignment {
     int project_id;

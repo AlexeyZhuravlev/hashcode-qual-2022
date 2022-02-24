@@ -28,16 +28,6 @@ using namespace std;
 #define fore(i, b, e) for (int i = (int)b; i <= (int)e; i++)
 #define all(x) (x).begin(), (x).end()
 
-struct ProjectComp {
-    float Potential(const Project& project) const {
-        return float(project.days_to_complete) - 0.1 * project.score;
-    }
-
-    bool operator()(const Project& first, const Project& second) const {
-        return Potential(first) < Potential(second);
-    }
-};
-
 struct MySolver : public Context {
     void Solve() {
         // Solution goes here
@@ -62,19 +52,23 @@ struct MySolver : public Context {
 
 
         vector<Project> order = projects;
-        sort(order.begin(), order.end(), ProjectComp());
+        sort(all(order), ProjectComp());
         vector<int> free_since(contributors_num);
         for (auto& p: order) {
             vi chosen(p.roles_num, -1);
             int start_date = 0;
             set<int> used;
+
+            vi potential_mentor(skill_name_to_id.size(), -1);
             forn(r, p.roles_num) {
                 int best = -1;
                 forn(c, contributors_num) {
                     if (used.count(c)) {
                         continue;
                     }
-                    if (contrib_to_skill[c][p.roles[r].skill] >= p.roles[r].level) {
+                    int his_skill = contrib_to_skill[c][p.roles[r].skill];
+                    int needed = p.roles[r].level;
+                    if (his_skill >= needed || (potential_mentor[p.roles[r].skill] >= needed && his_skill == needed - 1)) {
                         if (best == -1 || free_since[c] < free_since[best]) {
                             best = c;
                         }
@@ -86,6 +80,10 @@ struct MySolver : public Context {
                 used.insert(best);
                 chosen[r] = best;
                 start_date = max(start_date, free_since[best]);
+
+                forn(skill, skill_name_to_id.size()) {
+                    potential_mentor[skill] = max(potential_mentor[skill], contrib_to_skill[best][skill]);
+                }
             }
             bool all_covered = true;
             forn(j, p.roles_num) {
@@ -100,8 +98,12 @@ struct MySolver : public Context {
             // assert((int)chosen.size() == p.roles_num);
             if (start_date + p.days_to_complete <= p.best_before + p.score) {
                 forn(i, p.roles_num) {
-                    free_since[chosen[i]] = start_date + p.days_to_complete;
+                    int person = chosen[i];
+                    free_since[person] = start_date + p.days_to_complete;
 
+                    if (contrib_to_skill[person][p.roles[i].skill] <= p.roles[i].level) {
+                       contrib_to_skill[person][p.roles[i].skill]++;
+                    }
                     // contrib_to_skill[chosen[i]][i]++;
                 }
                 Solution.pb({p.id, chosen});
