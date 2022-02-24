@@ -41,7 +41,7 @@ struct Project {
 
 struct ProjectComp {
     float Potential(const Project& project) const {
-        return float(project.days_to_complete) - 0.01 * project.score;
+        return float(project.days_to_complete) - 0.0 * project.score;
     }
 
     bool operator()(const Project& first, const Project& second) const {
