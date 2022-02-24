@@ -31,6 +31,16 @@ using namespace std;
 struct MySolver : public Context {
     void Solve() {
         // Solution goes here
+        vi first {1, 0};
+        Assignment ass0 = {"WebServer", first};
+        Solution.pb(ass0);
+        vi second = {0}; 
+        Assignment ass1 = {"Logging", second};
+        Solution.pb(ass1);
+
+        vi third = {2, 1};
+        Assignment ass2 = {"WebChat", third};
+        Solution.pb(ass2);
     }
 };
 
